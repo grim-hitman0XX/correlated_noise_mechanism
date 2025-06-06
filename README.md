@@ -1,7 +1,7 @@
 # Correlated Noise Mechanism
 
 <!-- Replace with your actual badges -->
-[![Build Status](https://img.shields.io/github/workflow/status/grim-hitman0XX/correlated_noise_mechanism)](https://github.com/yourusername/correlated_noise_mechanism)
+[![Build Status](https://img.shields.io/github/workflow/status/grim-hitman0XX/correlated_noise_mechanism)](https://github.com/grim-hitman0XX/correlated_noise_mechanism)
 [![PyPI version](https://badge.fury.io/py/correlated-noise-mechanism.svg)](https://pypi.org/project/correlated-noise-mechanism/)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
