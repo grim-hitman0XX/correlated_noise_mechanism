@@ -1,7 +1,7 @@
 # Correlated Noise Mechanism
 
 <!-- Replace with your actual badges -->
-[![Build Status](https://img.shields.io/github/workflow/status/grim-hitman0XX/correlated_noise_mechanism/CI)](https://github.com/yourusername/correlated_noise_mechanism/actions)
+[![Build Status](https://img.shields.io/github/workflow/status/grim-hitman0XX/correlated_noise_mechanism)](https://github.com/yourusername/correlated_noise_mechanism)
 [![PyPI version](https://badge.fury.io/py/correlated-noise-mechanism.svg)](https://pypi.org/project/correlated-noise-mechanism/)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -19,12 +19,11 @@
 
 ### Key Features
 
-- 🚀 **High Performance**: [Describe performance benefits]
-- 🔧 **Easy Integration**: [Describe ease of use]
-- 📊 **Multiple Algorithms**: [List main algorithms/approaches]
-- 🎯 **Flexible API**: [Describe API flexibility]
-- 🔬 **Research-Grade**: [Academic/research applications]
-- 🐍 **PyTorch/NumPy Compatible**: [Framework compatibility]
+- 🚀 **High Performance**: Enables comparable performance to benchmarks while preserving privacy
+- 🔧 **Easy Integration**: Needs minimal modification to the PyTorch training codes
+- 📊 **Multiple Algorithms**: Incorporates streaming, multi-epoch correlated noise mechanism, and DP-SGD from Opacus with a better accountant
+- 🔬 **Research-Grade**: Can be used to benchmark differential privacy algorithms
+- 🐍 **PyTorch/NumPy Compatible**: Compatible with PyTorch
 
 ## Table of Contents
 
@@ -243,13 +242,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- **Author**: [Your Name]
-- **Email**: [your.email@domain.com]
-- **GitHub**: [@yourusername](https://github.com/yourusername)
-- **Project Issues**: [GitHub Issues](https://github.com/yourusername/correlated_noise_mechanism/issues)
+- **Author**: [Ashish Srivastava]
+- **Email**: [ashish.srivastava1919@gmail.com]
+- **GitHub**: [@grim-hitman0XX](https://github.com/grim-hitman0XX)
+- **Project Issues**: [GitHub Issues](https://github.com/grim-hitman0XX/correlated_noise_mechanism/issues)
 
 ---
 
 <div align="center">
-  <p>Made with ❤️ by [Your Name/Organization]</p>
+  <p>Made with ❤️ by Ashish Srivastava</p>
 </div>
