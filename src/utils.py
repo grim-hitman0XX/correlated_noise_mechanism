@@ -51,32 +51,34 @@ def get_column_norm(a, lamda, n):
     norm = np.linalg.norm(first_column)
     return norm
 
+
 def calculate_sensitivity_squared(alpha, lambda_val, d, k, b, n):
     """
     Calculate sensitivity squared based on participation schema
     """
     first_col = torch.zeros(n)
     first_col[0] = 1
-    
+
     for i in range(1, n):
         entry = 0
         for j in range(d):
-            entry += alpha[j] * (lambda_val[j] ** (i-1))
+            entry += alpha[j] * (lambda_val[j] ** (i - 1))
         first_col[i] = entry
-    
+
     sens_squared = 0
     for i in range(min(k, (n - 1) // b + 1)):
         col_idx = i * b
-        col = first_col[0:n-col_idx]
+        col = first_col[0 : n - col_idx]
         sens_squared += torch.sum(col**2)
-            
+
     return sens_squared
+
 
 def epsilon_for_rho(rho, delta):
     alpha = RDP_ORDERS
-    rdp_value = [alpha_i*rho for alpha_i in alpha]
+    rdp_value = [alpha_i * rho for alpha_i in alpha]
 
-    epsilon_computed = compute_epsilon(orders = alpha, rdp = rdp_value, delta = delta)
+    epsilon_computed = compute_epsilon(orders=alpha, rdp=rdp_value, delta=delta)
     return epsilon_computed[0]
 
 
@@ -139,7 +141,7 @@ def get_noise_multiplier(
         steps = int(1 / sample_rate)
 
     print(f"Mode : {mode}")
-    print(f'Participation : {participation}')
+    print(f"Participation : {participation}")
 
     if mode == "DP-SGD-BASE":
         noise_multiplier = calculate_multiplier(
@@ -153,10 +155,12 @@ def get_noise_multiplier(
         if participation == "streaming":
             col_norm = get_column_norm(a.cpu().numpy(), lamda.cpu().numpy(), steps)
             noise_multiplier = sqrt((epochs * col_norm) / (2 * target_epsilon))
-            print(f'Noise Multiplier : {noise_multiplier}')
+            print(f"Noise Multiplier : {noise_multiplier}")
             return noise_multiplier
         elif participation == "cyclic" or participation == "minSep":
-            col_norm = calculate_sensitivity_squared(a.cpu().numpy(), lamda.cpu().numpy(), d, k, b, steps)
+            col_norm = calculate_sensitivity_squared(
+                a.cpu().numpy(), lamda.cpu().numpy(), d, k, b, steps
+            )
         else:
             raise ValueError("Participation type not recognized")
         optimal_rho = calculate_rho(target_epsilon, target_delta)
@@ -167,11 +171,11 @@ def get_noise_multiplier(
         if mode == "Single Parameter":
             col_norm = (1 - gamma ** (steps)) / (1 - gamma)
 
-        #log_del = np.log(1 / target_delta)
-        #optimal_rho = (2 * target_epsilon + log_del) / 2 + (
+        # log_del = np.log(1 / target_delta)
+        # optimal_rho = (2 * target_epsilon + log_del) / 2 + (
         #    np.sqrt(4 * target_epsilon * log_del + log_del**2)
-        #) / 2
+        # ) / 2
         optimal_rho = calculate_rho(target_epsilon, target_delta)
         noise_multiplier = sqrt((epochs * col_norm) / (2 * optimal_rho))
-    print(f'Noise Multiplier : {noise_multiplier}')
+    print(f"Noise Multiplier : {noise_multiplier}")
     return noise_multiplier

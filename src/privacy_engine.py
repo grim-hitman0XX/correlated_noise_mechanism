@@ -343,7 +343,7 @@ class CNMEngine(PrivacyEngine):
                 sampling mechanism. Points to the same dataset object.
         """
         sample_rate = 1 / len(data_loader)
-        n = 1/sample_rate
+        n = 1 / sample_rate
 
         if len(self.accountant) > 0:
             warnings.warn(
@@ -352,19 +352,26 @@ class CNMEngine(PrivacyEngine):
                 "so your overall privacy budget will be higher."
             )
         if mode == "BLT" or mode == "Multi-Epoch-BLT":
-            blt_optimizer = BLTDifferentiableLossOptimizer(n = int(n), d = d, b = b, k = k, 
-                                                           participation_pattern = participation, error_type=error_type, lambda_penalty=1e-7)
+            blt_optimizer = BLTDifferentiableLossOptimizer(
+                n=int(n),
+                d=d,
+                b=b,
+                k=k,
+                participation_pattern=participation,
+                error_type=error_type,
+                lambda_penalty=1e-7,
+            )
             results = blt_optimizer.optimize(num_iterations=50, lr=0.01, verbose=False)
-            best_loss = results['loss']
-            print("\n" + "="*50)
+            best_loss = results["loss"]
+            print("\n" + "=" * 50)
             print("Optimization Results:")
-            print("="*50)
+            print("=" * 50)
             print(f"Final objective value: {best_loss:.6e}")
-            print("\n" + "="*50)
-            a, lamda = results['omega'], results['theta']
+            print("\n" + "=" * 50)
+            a, lamda = results["omega"], results["theta"]
         else:
             a, lamda = 0, 0
-        
+
         return self.make_private(
             module=module,
             optimizer=optimizer,
@@ -380,9 +387,9 @@ class CNMEngine(PrivacyEngine):
                 lamda=lamda,
                 gamma=gamma,
                 participation=participation,
-                d = d,
-                b = b,
-                k = k,
+                d=d,
+                b=b,
+                k=k,
                 **kwargs,
             ),
             max_grad_norm=max_grad_norm,
