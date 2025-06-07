@@ -43,7 +43,10 @@
 ### Prerequisites
 
 - Python 3.7 or higher
-- [List other requirements]
+- numpy >= 1.26.4
+- torch >= 2.3.0
+- torchvision >= 0.18.0
+- opacus >= 1.5.2
 
 ### Install from PyPI
 
@@ -72,32 +75,24 @@ pip install -e ".[dev]"
 Here's a minimal example to get you started:
 
 ```python
-from correlated_noise_mechanism import [YourMainClass]
+from correlated_noise_mechanism.privacy_engine import CNMEngine
 
-# Initialize the mechanism
-mechanism = [YourMainClass](
-    # Add your parameters here
+privacy_engine = CNMEngine()
+model, optimizer, train_loader = privacy_engine.make_private_with_epsilon(
+    module=model,
+    optimizer=optimizer,
+    data_loader=train_loader,
+    epochs=EPOCHS,
+    target_epsilon=epsilon,
+    target_delta=delta,
+    max_grad_norm=grad_norm,
+    mode = "BLT",
+    participation = "streaming",
+    error_type="rmse",
+    d = 4,
+    b = 5,
+    k = 8,
 )
-
-# Generate correlated noise
-result = mechanism.generate(
-    # Add parameters
-)
-
-print(f"Generated noise shape: {result.shape}")
-```
-
-### Basic Usage Example
-
-```python
-import numpy as np
-from correlated_noise_mechanism import [YourMainClass]
-
-# Example 1: [Description]
-# Your example code here
-
-# Example 2: [Description]  
-# Your example code here
 ```
 
 ## Documentation
@@ -112,7 +107,6 @@ from correlated_noise_mechanism import [YourMainClass]
 Explore our example gallery:
 
 - **[Basic Usage](examples/basic_usage.py)** - Introduction to the library
-- **[Advanced Examples](examples/advanced/)** - Complex use cases
 - **[Jupyter Notebooks](notebooks/)** - Interactive examples
 - **[Benchmarks](benchmarks/)** - Performance comparisons
 
@@ -242,8 +236,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- **Author**: [Ashish Srivastava]
-- **Email**: [ashish.srivastava1919@gmail.com]
+- **Author**: Ashish Srivastava
+- **Email**: ashish.srivastava1919@gmail.com
 - **GitHub**: [@grim-hitman0XX](https://github.com/grim-hitman0XX)
 - **Project Issues**: [GitHub Issues](https://github.com/grim-hitman0XX/correlated_noise_mechanism/issues)
 
