@@ -153,49 +153,55 @@ class CNMEngine(PrivacyEngine):
             Using any other models, optimizers, or data sources during training
             will invalidate stated privacy guarantees.
 
-        Args:
-            module: PyTorch module to be used for training
-            optimizer: Optimizer to be used for training
-            data_loader: DataLoader to be used for training
-            noise_multiplier: The ratio of the standard deviation of the Gaussian noise to
-                the L2-sensitivity of the function to which the noise is added
-                (How much noise to add)
-            max_grad_norm: The maximum norm of the per-sample gradients. Any gradient with norm
-                higher than this will be clipped to this value.
-            batch_first: Flag to indicate if the input tensor to the corresponding module
-                has the first dimension representing the batch. If set to True, dimensions on
-                input tensor are expected be ``[batch_size, ...]``, otherwise
-                ``[K, batch_size, ...]``
-            loss_reduction: Indicates if the loss reduction (for aggregating the gradients)
-                is a sum or a mean operation. Can take values "sum" or "mean"
-            poisson_sampling: ``True`` if you want to use standard sampling required
-                for DP guarantees. Setting ``False`` will leave provided data_loader
-                unchanged. Technically this doesn't fit the assumptions made by
-                privacy accounting mechanism, but it can be a good approximation when
-                using Poisson sampling is unfeasible.
-            clipping: Per sample gradient clipping mechanism ("flat" or "per_layer" or "adaptive").
-                Flat clipping calculates the norm of the entire gradient over
-                all parameters, per layer clipping sets individual norms for
-                every parameter tensor, and adaptive clipping updates clipping bound per iteration.
-                Flat clipping is usually preferred, but using per layer clipping in combination
-                with distributed training can provide notable performance gains.
-            noise_generator: torch.Generator() object used as a source of randomness for
-                the noise
-            grad_sample_mode: mode for computing per sample gradients. Determines the
-                implementation class for the wrapped ``module``. See
-                :class:`~opacus.grad_sample.gsm_base.AbstractGradSampleModule` for more
-                details
+        Parameters
+        ----------
+        module : torch.nn.Module
+            PyTorch module to be used for training
+        optimizer : torch.optim.Optimizer
+            Optimizer to be used for training
+        criterion : torch.nn.Module, default=nn.CrossEntropyLoss()
+            Loss function to be used for training
+        data_loader : torch.utils.data.DataLoader
+            DataLoader to be used for training
+        noise_multiplier : float
+            The ratio of the standard deviation of the Gaussian noise to the L2-sensitivity
+            of the function to which the noise is added (How much noise to add)
+        max_grad_norm : Union[float, List[float]]
+            The maximum norm of the per-sample gradients. Any gradient with norm higher than
+            this will be clipped to this value.
+        mode : str
+            Mode of operation: 'DP-SGD', 'BLT', 'Single Parameter', or 'Multi-Epoch-BLT'
+        a : Optional[Union[float, torch.Tensor]], default=None
+            Parameters for BLT mode
+        lamda : Optional[Union[float, torch.Tensor]], default=None
+            Parameters for BLT mode
+        gamma : Optional[float], default=None
+            A scalar for Single Parameter mode
+        batch_first : bool, default=True
+            Flag to indicate if the input tensor has the first dimension representing the batch
+        loss_reduction : str, default='mean'
+            Indicates if the loss reduction is a sum or mean operation ('sum' or 'mean')
+        poisson_sampling : bool, default=True
+            Whether to use standard sampling required for DP guarantees
+        clipping : str, default='flat'
+            Per sample gradient clipping mechanism ('flat', 'per_layer', or 'adaptive')
+        noise_generator : Optional[torch.Generator], default=None
+            Generator for noise
+        grad_sample_mode : str, default='hooks'
+            Mode for computing per sample gradients
 
-        Returns:
-            Tuple of (model, optimizer, data_loader).
+        Returns
+        -------
+        Tuple[GradSampleModule, CNMOptimizer, DataLoader]
+            Tuple of (model, optimizer, data_loader) with added privacy guarantees
 
-            Model is a wrapper around the original model that also computes per sample
-                gradients
-            Optimizer is a wrapper around the original optimizer that also does
-             gradient clipping and noise addition to the gradients
-            DataLoader is a brand new DataLoader object, constructed to behave as
-                equivalent to the original data loader, possibly with updated
-                sampling mechanism. Points to the same dataset object.
+        Model is a wrapper around the original model that also computes per sample
+            gradients
+        Optimizer is a wrapper around the original optimizer that also does
+            gradient clipping and noise addition to the gradients
+        DataLoader is a brand new DataLoader object, constructed to behave as
+            equivalent to the original data loader, possibly with updated
+            sampling mechanism. Points to the same dataset object.
         """
         if noise_generator and self.secure_mode:
             raise ValueError("Passing seed is prohibited in secure mode")
@@ -290,57 +296,56 @@ class CNMEngine(PrivacyEngine):
         **kwargs,
     ):
         """
-        Version of :meth:`~opacus.privacy_engine.PrivacyEngine.make_private`,
-        that calculates privacy parameters based on a given privacy budget.
+        Version of make_private that calculates privacy parameters based on a given privacy budget.
+        This is the recommended method for most use cases as it automatically handles noise
+        multiplier calculations.
 
-        For the full documentation see
-        :meth:`~opacus.privacy_engine.PrivacyEngine.make_private`
+        Parameters
+        ----------
+        module : torch.nn.Module
+            PyTorch module to be used for training
+        optimizer : torch.optim.Optimizer
+            Optimizer to be used for training
+        criterion : torch.nn.Module, default=nn.CrossEntropyLoss()
+            Loss function to be used for training
+        data_loader : torch.utils.data.DataLoader
+            DataLoader to be used for training
+        target_epsilon : float
+            Target epsilon to be achieved, a metric of privacy loss at differential changes in data
+        target_delta : float
+            Target delta to be achieved. Probability of information being leaked
+        epochs : int
+            Number of training epochs you intend to perform; noise_multiplier relies on this
+            to calculate an appropriate sigma to ensure privacy budget of (target_epsilon,
+            target_delta) at the end of epochs
+        max_grad_norm : Union[float, List[float]]
+            The maximum norm of the per-sample gradients. Any gradient with norm higher than
+            this will be clipped to this value
+        mode : str
+            Mode of operation: 'DP-SGD', 'BLT', 'Single Parameter', or 'Multi-Epoch-BLT'
+        a : Optional[Union[float, torch.Tensor]], default=None
+            Parameters for BLT mode
+        lamda : Optional[Union[float, torch.Tensor]], default=None
+            Parameters for BLT mode
+        gamma : Optional[float], default=None
+            A scalar for Single Parameter mode
+        batch_first : bool, default=True
+            Flag to indicate if the input tensor has the first dimension representing the batch
+        loss_reduction : str, default='mean'
+            Indicates if the loss reduction is a sum or mean operation ('sum' or 'mean')
+        poisson_sampling : bool, default=True
+            Whether to use standard sampling required for DP guarantees
+        clipping : str, default='flat'
+            Per sample gradient clipping mechanism ('flat', 'per_layer', or 'adaptive')
+        noise_generator : Optional[torch.Generator], default=None
+            Generator for noise
+        grad_sample_mode : str, default='hooks'
+            Mode for computing per sample gradients
 
-        Args:
-            module: PyTorch module to be used for training
-            optimizer: Optimizer to be used for training
-            data_loader: DataLoader to be used for training
-            target_epsilon: Target epsilon to be achieved, a metric of privacy loss at differential changes in data.
-            target_delta: Target delta to be achieved. Probability of information being leaked.
-            epochs: Number of training epochs you intend to perform; noise_multiplier relies on this to calculate
-                an appropriate sigma to ensure privacy budget of (target_epsilon, target_delta) at the end
-                of epochs.
-            max_grad_norm: The maximum norm of the per-sample gradients. Any gradient with norm
-                higher than this will be clipped to this value.
-            batch_first: Flag to indicate if the input tensor to the corresponding module
-                has the first dimension representing the batch. If set to True, dimensions on
-                input tensor are expected be ``[batch_size, ...]``, otherwise
-                ``[K, batch_size, ...]``
-            loss_reduction: Indicates if the loss reduction (for aggregating the gradients)
-                is a sum or a mean operation. Can take values "sum" or "mean"
-            poisson_sampling: ``True`` if you want to use standard sampling required
-                for DP guarantees. Setting ``False`` will leave provided data_loader
-                unchanged. Technically this doesn't fit the assumptions made by
-                privacy accounting mechanism, but it can be a good approximation when
-                using Poisson sampling is unfeasible.
-            clipping: Per sample gradient clipping mechanism ("flat" or "per_layer" or "adaptive").
-                Flat clipping calculates the norm of the entire gradient over
-                all parameters, per layer clipping sets individual norms for
-                every parameter tensor, and adaptive clipping updates clipping bound per iteration.
-                Flat clipping is usually preferred, but using per layer clipping in combination
-                with distributed training can provide notable performance gains.
-            noise_generator: torch.Generator() object used as a source of randomness for
-                the noise
-            grad_sample_mode: mode for computing per sample gradients. Determines the
-                implementation class for the wrapped ``module``. See
-                :class:`~opacus.grad_sample.gsm_base.AbstractGradSampleModule` for more
-                details
-
-        Returns:
-            Tuple of (model, optimizer, data_loader).
-
-            Model is a wrapper around the original model that also computes per sample
-                gradients
-            Optimizer is a wrapper around the original optimizer that also does
-                gradient clipping and noise addition to the gradients
-            DataLoader is a brand new DataLoader object, constructed to behave as
-                equivalent to the original data loader, possibly with updated
-                sampling mechanism. Points to the same dataset object.
+        Returns
+        -------
+        Tuple[GradSampleModule, CNMOptimizer, DataLoader]
+            Tuple of (model, optimizer, data_loader) with added privacy guarantees
         """
         sample_rate = 1 / len(data_loader)
         n = 1 / sample_rate

@@ -5,6 +5,31 @@ torch.autograd.set_detect_anomaly(True)
 
 
 class BLTDifferentiableLossOptimizer:
+    """
+    An optimizer that implements the Banded Linear Transformation (BLT) mechanism with differentiable loss
+    for optimizing noise correlation parameters. This optimizer is used internally by CNMEngine to
+    find optimal parameters for the BLT mechanism that minimize error while maintaining privacy guarantees.
+
+    Parameters
+    ----------
+    n : int
+        Number of rounds (size of the matrix)
+    d : int
+        Number of buffers/parameters
+    b : int, default=5
+        Minimum separation parameter
+    k : int, default=10
+        Maximum participations
+    participation_pattern : str, default='minSep'
+        Pattern of participation: 'minSep', 'cyclic', or 'streaming'
+    error_type : str, default='rmse'
+        Type of error to minimize: 'rmse' or 'max'
+    lambda_penalty : float, default=1e-7
+        Penalty strength for log-barrier optimization
+    device : str, default='cuda' if available else 'cpu'
+        Computation device
+    """
+
     def __init__(
         self,
         n,
@@ -16,18 +41,6 @@ class BLTDifferentiableLossOptimizer:
         lambda_penalty=1e-7,
         device="cuda" if torch.cuda.is_available() else "cpu",
     ):
-        """
-        Initialize the BLT differentiable loss optimizer
-
-        Args:
-            n: Number of rounds (size of the matrix)
-            d: Number of buffers/parameters
-            b: Minimum separation parameter
-            k: Maximum participations
-            error_type: 'rmse' or 'max'
-            lambda_penalty: Penalty strength for log-barrier (default 1e-7)
-            device: Computation device
-        """
         self.n = n
         self.d = d
         self.b = b

@@ -3,6 +3,30 @@ import numpy as np
 
 
 class BLTOptimizer:
+    """
+    An optimizer that implements the Buffered Linear Transformation (BLT) mechanism for differentially
+    private training. This optimizer provides an alternative implementation of the BLT mechanism
+    that focuses on optimizing the noise correlation parameters using closed-form expressions
+    and gradient-based optimization.
+
+    Parameters
+    ----------
+    n : int
+        Size of the matrix (number of steps)
+    d : int
+        Number of parameters
+    b : int, default=5
+        Minimum separation parameter
+    k : int, default=10
+        Number of columns to consider in sensitivity
+    error_type : str, default='rmse'
+        Type of error to minimize: 'rmse' or 'max'
+    participation : str, default='minSep'
+        Participation pattern: 'minSep', 'cyclic', or 'single'
+    device : str, default='cuda' if available else 'cpu'
+        Computation device
+    """
+
     def __init__(
         self,
         n,
@@ -13,18 +37,6 @@ class BLTOptimizer:
         participation="minSep",
         device="cuda" if torch.cuda.is_available() else "cpu",
     ):
-        """
-        Initialize the BLT optimizer
-
-        Args:
-            n: Size of the matrix (number of steps)
-            d: Number of parameters
-            b: Minimum separation parameter
-            k: Number of columns to consider in sensitivity
-            error_type: 'rmse' or 'max'
-            participation: 'minSep', 'cyclic', or 'single'
-            device: Computation device
-        """
         self.n = n
         self.d = d
         self.b = b
